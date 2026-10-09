@@ -23,6 +23,6 @@ function render(){document.querySelectorAll('.nav').forEach(b=>b.classList.toggl
  function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  function safe(u){try{let a=new URL(u);return ['https:','http:'].includes(a.protocol)?esc(a.href):'#'}catch(e){return '#'}}
  document.getElementById('live-source-filter').addEventListener('input',render);
- fetch('./daily_sources.json?ts='+Date.now()).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(d=>{records=d.records||[];document.getElementById('live-source-status').textContent='Indexed links: '+records.length+' · Last checked (UTC): '+(d.last_checked_utc||'First run pending')+' · Indexed links may point to aggregators and require verification';render()}).catch(e=>{document.getElementById('live-source-status').textContent='Daily feed unavailable: '+e.message});
+ Promise.all([fetch('./daily_sources.json?ts='+Date.now()).then(r=>r.json()),fetch('./researched_sources.json?ts='+Date.now()).then(r=>r.json())]).then(d=>{records=[...(d[1].records||[]),...(d[0].records||[])];document.getElementById('live-source-status').textContent='Indexed links: '+records.length+' · Last checked (UTC): '+(d.last_checked_utc||'First run pending')+' · Indexed links may point to aggregators and require verification';render()}).catch(e=>{document.getElementById('live-source-status').textContent='Daily feed unavailable: '+e.message});
 })();
 </script></body></html>
